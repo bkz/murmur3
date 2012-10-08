@@ -5,13 +5,11 @@ static PyObject* hash32(PyObject *self, PyObject *args)
 {
     char *value = NULL;
     int len = 0;
-    int32_t args_len = 0;
     uint32_t seed = 0;
     uint32_t h = 0;
     PyObject *result;
 
-    args_len = (int32_t)PyTuple_Size(args);
-    if (args_len == 2) {
+    if (PyTuple_Size(args) == 2) {
         if (!PyArg_ParseTuple(args, "s#I", &value, &len, &seed)) {
             return NULL;
         }
@@ -35,14 +33,12 @@ static PyObject *hash128(PyObject *self, PyObject *args)
     char *value = NULL;
     int len = 0;
     int i;
-    int32_t args_len = 0;
     uint32_t seed = 0;
     uint32_t out[4] = {0, 0, 0, 0};
     PyObject *result;
     PyObject *tmp[4];
 
-    args_len = (int32_t)PyTuple_Size(args);
-    if (args_len == 2) {
+    if (PyTuple_Size(args) == 2) {
         if (!PyArg_ParseTuple(args, "s#I", &value, &len, &seed)) {
             return NULL;
         }
@@ -60,18 +56,15 @@ static PyObject *hash128(PyObject *self, PyObject *args)
         return NULL;
     }
     
-    /* TODO: Does result and tmp[] need to be Py_DECREF()'d on error? */
+    /* TODO: Does tmp[] need to be Py_DECREF()'d on error? */
     for (i = 0; i < 4; i++) {
         tmp[i] = PyLong_FromUnsignedLong(out[i]);
         if (!tmp[i]) {
-            /*
-            for (i--; i > -1; i--) {
+            /*for (i--; i > -1; i--) {
                 Py_DECREF(tmp[i]);
-            }
+            }*/
             
             Py_DECREF(result);
-            */
-            
             PyErr_SetString(PyExc_MemoryError, "PyLong_FromUnsignedLong() returned NULL.");
             return NULL;
         }
