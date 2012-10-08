@@ -75,12 +75,60 @@ static PyObject *hash128(PyObject *self, PyObject *args)
     return result;
 }
 
+static PyObject *hash128_64(PyObject *self, PyObject *args)
+{
+    char *value = NULL;
+    int len = 0;
+    int i;
+    uint32_t seed = 0;
+    uint64_t out[2] = {0, 0};
+    PyObject *result;
+    PyObject *tmp[4];
+
+    if (PyTuple_Size(args) == 2) {
+        if (!PyArg_ParseTuple(args, "s#I", &value, &len, &seed)) {
+            return NULL;
+        }
+    } else {
+        if (!PyArg_ParseTuple(args, "s#", &value, &len)) {
+            return NULL;
+        }
+    }
+    
+    MurmurHash3_x64_128(value, len, seed, &out);
+    
+    result = PyTuple_New(2);
+    if (!result) {
+        PyErr_SetString(PyExc_MemoryError, "PyTuple_New() returned NULL.");
+        return NULL;
+    }
+    
+    for (i = 0; i < 2; i++) {
+        tmp[i] = PyLong_FromUnsignedLongLong(out[i]);
+        if (!tmp[i]) {
+            
+            Py_DECREF(result);
+            PyErr_SetString(PyExc_MemoryError, "PyLong_FromUnsignedLong() returned NULL.");
+            return NULL;
+        }
+    
+        PyTuple_SetItem(result, i, tmp[i]);
+    }
+    
+    return result;
+}
+
 static PyMethodDef methods[] = {
     {"hash32", hash32, METH_VARARGS,
         "Calculate Murmur3 32-bit unsigned hash value. "
         "Parameters: <str>, [seed]"},
     {"hash128", hash128, METH_VARARGS,
-        "Calculate Murmur3 128-bit hash. Returns tuple. "
+        "Calculate Murmur3 128-bit hash to four 32bit integers. "
+        "Returns tuple (int, int, int, int). "
+        "Parameters: <str>, [seed]"},
+    {"hash128_64", hash128_64, METH_VARARGS,
+        "Calculate Murmur3 128-bit hash to two 64bit integers. "
+        "Returns tuple (int, int). "
         "Parameters: <str>, [seed]"},
     {NULL, NULL, 0, NULL}
 };
