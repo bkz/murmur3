@@ -11,16 +11,14 @@ static PyObject* hash32(PyObject *self, PyObject *args)
     PyObject *result;
 
     args_len = (int32_t)PyTuple_Size(args);
-    if (args_len == 3) {
-        if (!PyArg_ParseTuple(args, "sII", &value, &len, &seed)) {
+    if (args_len == 2) {
+        if (!PyArg_ParseTuple(args, "s#I", &value, &len, &seed)) {
             return NULL;
         }
     } else {
-        if (!PyArg_ParseTuple(args, "sI", &value, &len)) {
+        if (!PyArg_ParseTuple(args, "s#", &value, &len)) {
             return NULL;
         }
-        
-        seed = len;
     }
 
     MurmurHash3_x86_32(value, len, seed, &h);
@@ -44,16 +42,14 @@ static PyObject *hash128(PyObject *self, PyObject *args)
     PyObject *tmp[4];
 
     args_len = (int32_t)PyTuple_Size(args);
-    if (args_len == 3) {
-        if (!PyArg_ParseTuple(args, "sII", &value, &len, &seed)) {
+    if (args_len == 2) {
+        if (!PyArg_ParseTuple(args, "s#I", &value, &len, &seed)) {
             return NULL;
         }
     } else {
-        if (!PyArg_ParseTuple(args, "sI", &value, &len)) {
+        if (!PyArg_ParseTuple(args, "s#", &value, &len)) {
             return NULL;
         }
-        
-        seed = len;
     }
     
     MurmurHash3_x86_128(value, len, seed, &out);
@@ -68,7 +64,14 @@ static PyObject *hash128(PyObject *self, PyObject *args)
     for (i = 0; i < 4; i++) {
         tmp[i] = PyLong_FromUnsignedLong(out[i]);
         if (!tmp[i]) {
-            //Py_DECREF(result);
+            /*
+            for (i--; i > -1; i--) {
+                Py_DECREF(tmp[i]);
+            }
+            
+            Py_DECREF(result);
+            */
+            
             PyErr_SetString(PyExc_MemoryError, "PyLong_FromUnsignedLong() returned NULL.");
             return NULL;
         }
@@ -82,10 +85,10 @@ static PyObject *hash128(PyObject *self, PyObject *args)
 static PyMethodDef methods[] = {
     {"hash32", hash32, METH_VARARGS,
         "Calculate Murmur3 32-bit unsigned hash value. "
-        "Parameters: <str>, <len>, [seed]"},
+        "Parameters: <str>, [seed]"},
     {"hash128", hash128, METH_VARARGS,
         "Calculate Murmur3 128-bit hash. Returns tuple. "
-        "Parameters: <str>, <len>, [seed]"},
+        "Parameters: <str>, [seed]"},
     {NULL, NULL, 0, NULL}
 };
 
