@@ -1,5 +1,6 @@
 #include <Python.h>
 #include "MurmurHash3.h"
+#include "version.py"
 
 static PyObject *hash32(PyObject *, PyObject *);
 static PyObject *hash128(PyObject *, PyObject *);
@@ -145,12 +146,16 @@ static PyObject *hash128_64(PyObject *self, PyObject *args)
 #if PY_MAJOR_VERSION <= 2
     /* Python 1.x/2.x */
     
-    extern "C"
-    PyMODINIT_FUNC
+    extern "C" PyMODINIT_FUNC
     initmurmur3(void)
     {
         //Py_Initialize();
-        (void) Py_InitModule3("murmur3", methods, (char *)documentation);
+        PyObject *module;
+        
+        module = Py_InitModule3("murmur3", methods, (char *)documentation);
+        if (!module) return;
+        
+        PyModule_AddStringConstant(module, "__version__", MODULE_VERSION);
     }
 #else
     /* Python 3.x */
@@ -167,13 +172,15 @@ static PyObject *hash128_64(PyObject *self, PyObject *args)
         NULL
     };
 
-    extern "C"
-    PyMODINIT_FUNC
+    extern "C" PyMODINIT_FUNC
     PyInit_murmur3(void)
     {
         PyObject *module;
     
         module = PyModule_Create(&murmur3_module);
+        if (!module) return module;
+        PyModule_AddStringConstant(module, "__version__", MODULE_VERSION);
+        
         return module;
     }
 #endif
