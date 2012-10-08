@@ -7,13 +7,13 @@ Installing:
 
 Using:
 
-    import murmur3
+import murmur3
     
-    print murmur3.hash32('my string')
-    a, b, c, d = murmur3.hash128('my other string')
-    print a, b, c, d
+print murmur3.hash32('my string')
+a, b, c, d = murmur3.hash128('my other string')
+print a, b, c, d
     
-    a, b = murmur3,hash128_64('my other other string')
-    print a, b
+a, b = murmur3,hash128_64('my other other string')
+print a, b
 
 See http://code.google.com/p/smhasher/ for more information.
