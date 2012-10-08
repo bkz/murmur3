@@ -1,13 +1,35 @@
 #include <Python.h>
 #include "MurmurHash3.h"
 
+static PyObject *hash32(PyObject *, PyObject *);
+static PyObject *hash128(PyObject *, PyObject *);
+static PyObject *hash128_64(PyObject *, PyObject *);
+
 const char *documentation =
     "Python wrapper around the MurmurHash3 library, written in C++. "
     "Functions included are: hash32, hash128, and hash128_64. All of "
     "these functions take the same parameters, which are: "
     "(<str/unicode/buffer>, [seed]), but may return different types.";
 
-static PyObject* hash32(PyObject *self, PyObject *args)
+static PyMethodDef methods[] = {
+    {"hash32", hash32, METH_VARARGS,
+        "Calculate Murmur3 32-bit unsigned hash value. "
+        "Parameters: <str>, [seed]"},
+        
+    {"hash128", hash128, METH_VARARGS,
+        "Calculate Murmur3 128-bit hash to four 32bit integers. "
+        "Returns tuple (int, int, int, int). "
+        "Parameters: <str>, [seed]"},
+        
+    {"hash128_64", hash128_64, METH_VARARGS,
+        "Calculate Murmur3 128-bit hash to two 64bit integers. "
+        "Returns tuple (int, int). "
+        "Parameters: <str>, [seed]"},
+        
+    {NULL, NULL, 0, NULL}
+};
+
+static PyObject *hash32(PyObject *self, PyObject *args)
 {
     char *value = NULL;
     int len = 0;
@@ -120,27 +142,38 @@ static PyObject *hash128_64(PyObject *self, PyObject *args)
     return result;
 }
 
-static PyMethodDef methods[] = {
-    {"hash32", hash32, METH_VARARGS,
-        "Calculate Murmur3 32-bit unsigned hash value. "
-        "Parameters: <str>, [seed]"},
-        
-    {"hash128", hash128, METH_VARARGS,
-        "Calculate Murmur3 128-bit hash to four 32bit integers. "
-        "Returns tuple (int, int, int, int). "
-        "Parameters: <str>, [seed]"},
-        
-    {"hash128_64", hash128_64, METH_VARARGS,
-        "Calculate Murmur3 128-bit hash to two 64bit integers. "
-        "Returns tuple (int, int). "
-        "Parameters: <str>, [seed]"},
-        
-    {NULL, NULL, 0, NULL}
-};
+#if PY_MAJOR_VERSION <= 2
+    /* Python 1.x/2.x */
+    
+    extern "C"
+    PyMODINIT_FUNC
+    initmurmur3(void)
+    {
+        //Py_Initialize();
+        (void) Py_InitModule3("murmur3", methods, (char *)documentation);
+    }
+#else
+    /* Python 3.x */
 
-PyMODINIT_FUNC
-initmurmur3(void)
-{
-    //Py_Initialize();
-    (void) Py_InitModule3("murmur3", methods, (char *)documentation);
-}
+    static PyModuleDef murmur3_module = {
+        PyModuleDef_HEAD_INIT,
+        "murmur3",
+        documentation,
+        -1,
+        methods,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+    };
+
+    extern "C"
+    PyMODINIT_FUNC
+    PyInit_murmur3(void)
+    {
+        PyObject *module;
+    
+        module = PyModule_Create(&murmur3_module);
+        return module;
+    }
+#endif
