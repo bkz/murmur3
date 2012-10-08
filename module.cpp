@@ -1,6 +1,12 @@
 #include <Python.h>
 #include "MurmurHash3.h"
 
+const char *documentation =
+    "Python wrapper around the MurmurHash3 library, written in C++. "
+    "Functions included are: hash32, hash128, and hash128_64. All of "
+    "these functions take the same parameters, which are: "
+    "(<str/unicode/buffer>, [seed]), but may return different types.";
+
 static PyObject* hash32(PyObject *self, PyObject *args)
 {
     char *value = NULL;
@@ -60,11 +66,7 @@ static PyObject *hash128(PyObject *self, PyObject *args)
     for (i = 0; i < 4; i++) {
         tmp[i] = PyLong_FromUnsignedLong(out[i]);
         if (!tmp[i]) {
-            /*for (i--; i > -1; i--) {
-                Py_DECREF(tmp[i]);
-            }*/
-            
-            Py_DECREF(result);
+            Py_XDECREF(result);
             PyErr_SetString(PyExc_MemoryError, "PyLong_FromUnsignedLong() returned NULL.");
             return NULL;
         }
@@ -107,7 +109,7 @@ static PyObject *hash128_64(PyObject *self, PyObject *args)
         tmp[i] = PyLong_FromUnsignedLongLong(out[i]);
         if (!tmp[i]) {
             
-            Py_DECREF(result);
+            Py_XDECREF(result);
             PyErr_SetString(PyExc_MemoryError, "PyLong_FromUnsignedLong() returned NULL.");
             return NULL;
         }
@@ -122,20 +124,23 @@ static PyMethodDef methods[] = {
     {"hash32", hash32, METH_VARARGS,
         "Calculate Murmur3 32-bit unsigned hash value. "
         "Parameters: <str>, [seed]"},
+        
     {"hash128", hash128, METH_VARARGS,
         "Calculate Murmur3 128-bit hash to four 32bit integers. "
         "Returns tuple (int, int, int, int). "
         "Parameters: <str>, [seed]"},
+        
     {"hash128_64", hash128_64, METH_VARARGS,
         "Calculate Murmur3 128-bit hash to two 64bit integers. "
         "Returns tuple (int, int). "
         "Parameters: <str>, [seed]"},
+        
     {NULL, NULL, 0, NULL}
 };
 
 PyMODINIT_FUNC
 initmurmur3(void)
 {
-    Py_Initialize();
-    (void) Py_InitModule("murmur3", methods);
+    //Py_Initialize();
+    (void) Py_InitModule3("murmur3", methods, (char *)documentation);
 }
