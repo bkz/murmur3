@@ -85,7 +85,6 @@ static PyObject *hash128(PyObject *self, PyObject *args)
         return NULL;
     }
     
-    /* TODO: Does tmp[] need to be Py_DECREF()'d on error? */
     for (i = 0; i < 4; i++) {
         tmp[i] = PyLong_FromUnsignedLong(out[i]);
         if (!tmp[i]) {
