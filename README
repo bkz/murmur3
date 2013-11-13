@@ -5,6 +5,12 @@ Installing:
 
     sudo python setup.py install
 
+API:
+
+murmur3.hash32(string[, seed])
+murmur3.hash128(string[, seed])
+murmur3.hash128_64(string[, seed])
+
 Using:
 
 import murmur3
