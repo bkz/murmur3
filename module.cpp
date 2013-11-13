@@ -142,10 +142,10 @@ static PyObject *hash128_64(PyObject *self, PyObject *args)
     return result;
 }
 
+extern "C" {
 #if PY_MAJOR_VERSION <= 2
-    /* Python 1.x/2.x */
-    
-    extern "C" PyMODINIT_FUNC
+/* Python 1.x/2.x */
+    PyMODINIT_FUNC
     initmurmur3(void)
     {
         //Py_Initialize();
@@ -171,7 +171,7 @@ static PyObject *hash128_64(PyObject *self, PyObject *args)
         NULL
     };
 
-    extern "C" PyMODINIT_FUNC
+    PyMODINIT_FUNC
     PyInit_murmur3(void)
     {
         PyObject *module;
@@ -183,3 +183,4 @@ static PyObject *hash128_64(PyObject *self, PyObject *args)
         return module;
     }
 #endif
+}
