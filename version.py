@@ -1,4 +1,4 @@
-#define MODULE_VERSION "0.2.0"
+#define MODULE_VERSION "0.3.0"
 #ifndef __FILE__
-MODULE_VERSION = "0.2.0"
+MODULE_VERSION = "0.3.0"
 #endif
